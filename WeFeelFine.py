@@ -2,39 +2,46 @@ from enums import Enums
 import re
 from Feeling import Feeling
 
-def displayOption():
-    
-    strGender = raw_input("Enter your gender: ").strip()
+def displayOption():    
     age = 0
+    gender = -1
+
+    strGender = raw_input("Enter your gender, <enter for none>: ").strip()
     try:
-        age = int(raw_input("Enter your age: ") or 0)
+        # default age =  1
+        age = int(raw_input("Enter your age, <enter for none>: ") or 1)
+        if age < 1:
+            raise ValueError
     except ValueError:
         print("\nPlease enter correct age.\n")
         return displayOption()
 
-    city = raw_input("Enter your city: ").strip()
+    city = raw_input("Enter your city, <enter for none>: ").strip()
 
-    searchWord = raw_input("""We'll use the top25 feelings, but if you want to add some, 
-type in a comma separated list.
+    searchWord = raw_input("""\nWe'll use the top 25 feelings, but if you want to add some, 
+type in a comma separated list.\n
 Extra feelings (comma separated, <enter> for none): """).strip()
 
-    gender = -1
     if re.match("\\bmale\\b", strGender, re.IGNORECASE) != None:
         gender = Enums.Gender._male
     elif re.match("\\bfemale\\b", strGender, re.IGNORECASE) != None:
         gender = Enums.Gender._female
 
-    if age > 0 and age < 11 :
+    # calculate the age group: (20 - 29 = 20). Age group 1-19 are considered in age group 10
+    if age > 0 and age < 10 :
         age = 10
-    elif age > 11:
+    else:
         age = age / 10 * 10
     
     dictFoundFeelingCount = Feeling(gender, age, city).findFeelingWordInTheSentence(searchWord)
     displayFoundFeelingWithCount(dictFoundFeelingCount)
 
+
+# Display feelings and it's corresponding frequencies, if available
 def displayFoundFeelingWithCount(dictFoundFeelingCount):
-    print ("\nWe found {0} matching feelings.\n".format(len(dictFoundFeelingCount)))
-    if len(dictFoundFeelingCount) == 0 :
+    foundFeelingCount = len(dictFoundFeelingCount)
+    print ("\nWe found {0} matching feelings.\n".format(foundFeelingCount))
+    if foundFeelingCount == 0 :
         return
     print "Feeling : Frequency\n"
     for feeling in dictFoundFeelingCount.items():        
